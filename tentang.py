@@ -6,7 +6,7 @@ st.divider()
 
 st.markdown("Aplikasi ini merupakan sebuah purwarupa dari sistem yang berfungsi untuk menghasilkan prediksi konsentrasi PM2.5 secara jangka pendek. Metode yang digunakan untuk melakukan prediksi adalah arsitektur *gated recurrent unit* (GRU) yang dilatih menggunakan data historis PM2.5 dan meteorologi. Tata cara pengoperasian dari aplikasi dapat diakses dari buku manual di bawah ini.")
 
-file_path = r"C:\Users\given\Downloads\Buku Manual Aplikasi Prediksi PM2.5.pdf" 
+file_path = "Buku Manual Aplikasi Prediksi PM2.5.pdf" 
 
 try:
     with open(file_path, "rb") as pdf_file:
