@@ -186,7 +186,6 @@ if st.button("**Prediksi**", type="primary", disabled=(not valid_selection)):
                             "isValid(datum.pm25)"
                         )
 
-                        # Layer 3: Teks
                         text = base.mark_text(
                             align='center',
                             dy=-10,
