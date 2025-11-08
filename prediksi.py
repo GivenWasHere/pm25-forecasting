@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-import altair as alt
+from datetime import datetime
 from aplikasi import(
     load_model_scaler
 )
@@ -62,7 +62,7 @@ def get_recommendation(label):
         return "**Kualitas udara masih dapat diterima. Kelompok sensitif (anak-anak, lansia, penderita asma) disarankan mengurangi aktivitas fisik berat di luar ruangan.**", "info"
     elif label == "Waspada":
         return "**Kualitas udara mulai memburuk. Kelompok sensitif sebaiknya menghindari aktivitas di luar ruangan. Masyarakat umum disarankan menggunakan masker jika beraktivitas di luar.**", "warning"
-    elif label == "Tidak Sehat":
+    elif label == "Tidak sehat":
         return "**Kualitas udara tidak sehat. Masyarakat umum disarankan mengurangi aktivitas di luar ruangan dan menggunakan masker. Kelompok sensitif harus tetap berada di dalam ruangan.**", "error"
     elif label == "Buruk":
         return "**Sangat tidak sehat! Hindari semua aktivitas di luar ruangan. Gunakan masker N95 jika terpaksa keluar. Nyalakan pembersih udara (air purifier) jika ada.**", "error"
@@ -106,20 +106,48 @@ col1, col2 = st.columns(2)
 
 with col1:
     data_input['pm25'] = st.slider("PM2.5 saat ini (µg/m³)", 0, 300, 0)
-    data_input['tem'] = st.slider("Suhu (°C)", 20, 40, 20)
+    with st.expander("Deskripsi PM2.5"):
+        st.write("Polutan udara berukuran 30 kali lebih kecil daripada diameter helai rambut manusia (2,5 µg/m³).")
+        st.markdown("Rentang yang memungkinkan: **0-300 µg/m³**")
+    data_input['tem'] = st.slider("Suhu (°C)", 20.0, 40.0, 20.0)
+    with st.expander("Deskripsi suhu"):
+        st.markdown("Suhu pada udara di batas planet ketinggian 2 meter di atas permukaan tanah.")
+        st.markdown("Rentang yang memungkinkan: **20-40°C**")
     data_input['hum'] = st.slider("Kelembapan (%)", 20, 100, 20)
-    data_input['ws'] = st.slider("Kecepatan angin (m/s)", 0.0, 30.0, 0.0, step=0.1)
-    data_input['sr'] = st.slider("Radiasi Matahari (W/m²)", 0, 1100, 0)
+    with st.expander("Deskripsi kelembapan"):
+        st.write("Kelembapan udara pada ketinggian 2 meter di atas permukaan tanah.")
+        st.markdown("Rentang yang memungkinkan: **20-100%**")
+    data_input['ws'] = st.slider("Kecepatan angin (m/s)", 2.0, 35.0, 2.0, step=0.1)
+    with st.expander("Deskripsi kecepatan angin"):
+        st.write("Kecepatan angin pada ketinggian 10 meter di atas permukaan tanah.")
+        st.markdown("Rentang yang memungkinkan: **2-35 m/s**")
+    data_input['sr'] = st.slider("Radiasi matahari (W/m²)", 0, 1050, 0)
+    with st.expander("Deskripsi radiasi matahari"):
+        st.write("Banyak jumlah radiasi matahari yang diterima oleh permukaan tanah.")
+        st.markdown("Rentang yang memungkinkan: **0-1050 W/m²**")
 
 with col2:
-    data_input['pbl'] = st.number_input("Tinggi lapisan batas planet (m)", min_value=0, max_value=300000, value=0, step=50)
+    data_input['pbl'] = st.number_input("Tinggi lapisan batas planet (m)", min_value=10, max_value=3000, value=10, step=50)
+    with st.expander("Deskripsi tinggi lapisan batas planet"):
+        st.write("Tinggi lapisan atmosfer yang langsung bersentuhan dengan permukaan (atap permukaan tanah).")
+        st.markdown("Rentang yang memungkinkan: **10-3000 m**")
     data_input['ap'] = st.slider("Tekanan udara (hPa)", 1000.0, 1015.0, 1000.0, step=0.1)
+    with st.expander("Deskripsi tekanan udara"):
+        st.write("Tekanan udara dari atmosfer pada permukaan tanah.")
+        st.markdown("Rentang yang memungkinkan: **1000-1015 hPa**")
     data_input['pre'] = st.slider("Curah hujan (mm)", 0.0, 25.0, 0.0, step=0.1)
+    with st.expander("Deskripsi curah hujan"):
+        st.write("Jumlah curah hujan yang terjadi pada waktu tersebut.")
+        st.markdown("Rentang yang memungkinkan: **0-25 mm**")
     data_input['wd'] = st.slider("Arah angin (°)", 0, 360, 0)
+    with st.expander("Deskripsi arah angin"):
+        st.write("Arah asal angin yang datang pada ketinggian 10 meter di atas permukaan tanah.")
+        st.markdown("Rentang yang memungkinkan: **0-360°**")
 
 if st.button("**Prediksi**", type="primary"):
     with st.spinner("Memproses..."):
-            
+
+        waktu_prediksi = datetime.now()    
         model_input = preprocess_input(data_input, scaler)
             
         if model_input is not None:
@@ -133,8 +161,9 @@ if st.button("**Prediksi**", type="primary"):
                 ''
                 ''
                 st.title("Hasil Prediksi")
+                st.write(f"Waktu saat ini: **{waktu_prediksi.strftime('%d-%m-%Y**, **%H:%M')}**") 
                 ''
-                ''  
+                '' 
                 current_pm25 = data_input['pm25']
                 actual_label, actual_style, _ = get_pm25_label_html(current_pm25)
 

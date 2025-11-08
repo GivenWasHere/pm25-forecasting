@@ -50,7 +50,7 @@ with col2:
         value=end_time.hour 
     )
 
-selected_time_str = f"{selected_date.strftime('%Y-%m-%d')} {selected_hour:02d}:00"
+selected_time_str = f"{selected_date.strftime('%d-%m-%Y')} {selected_hour:02d}:00"
 selected_time = pd.to_datetime(selected_time_str)
 
 if not (start_time <= selected_time <= end_time):
@@ -168,7 +168,7 @@ if st.button("**Prediksi**", type="primary", disabled=(not valid_selection)):
                             x=alt.X('Waktu:T', title='Waktu', scale=alt.Scale()), 
                             y=alt.Y('pm25:Q', title='PM2.5 (µg/m³)', scale=alt.Scale(zero=False)), 
                             tooltip=[
-                                alt.Tooltip('Waktu:T', format='%Y-%m-%d %H:%M', title='Waktu'), 
+                                alt.Tooltip('Waktu:T', format='%d-%m-%Y %H:%M', title='Waktu'), 
                                 alt.Tooltip('pm25', title='PM2.5', format='.2f')
                             ]
                         )
@@ -203,7 +203,6 @@ if st.button("**Prediksi**", type="primary", disabled=(not valid_selection)):
 
                     else:
                         st.warning("Tidak ada data 'pm25' yang valid untuk digambar.")
-
                     ''
                     st.write("**Metrik kesalahan gabungan**")
                     
