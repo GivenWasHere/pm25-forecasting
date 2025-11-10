@@ -4,6 +4,7 @@ import pandas as pd
 import joblib
 from cards import (
     validasi_card,
+    perbarui_data_card,
     tentang_card
 )
 
@@ -42,9 +43,13 @@ pages = [
         title="Validasi"
     ),
     st.Page(
+        "perbarui_data.py",
+        title="Unggah Data"
+    ),
+    st.Page(
         "tentang.py",
         title="Tentang"
-    )
+    ),
 ]
 
 page = st.navigation(pages)
@@ -53,6 +58,8 @@ page.run()
 with st.sidebar.container(height=310):
     if page.title == "Validasi":
         validasi_card()
+    elif page.title == "Unggah Data":
+        perbarui_data_card()
     elif page.title == "Tentang":
         tentang_card()
     else:

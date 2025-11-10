@@ -2,8 +2,10 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 from datetime import datetime
+import matplotlib.pyplot as plt
 from aplikasi import(
-    load_model_scaler
+    load_model_scaler,
+    load_dataframes
 )
 
 n_past = 24       
@@ -13,6 +15,16 @@ pm25_index = features.index('pm25')
 horizons = [1, 3, 6] 
 
 model, scaler = load_model_scaler()
+
+try:
+    df_processed, _, _, _ = load_dataframes()
+    DATA_LOADED_SUCCESS = True
+except FileNotFoundError:
+    st.sidebar.warning("File 'processed_data.csv' tidak ditemukan.")
+    DATA_LOADED_SUCCESS = False
+except Exception as e:
+    st.sidebar.error(f"Error saat memuat data: {e}")
+    DATA_LOADED_SUCCESS = False
 
 def get_pm25_label_html(pm25_value):
     base_style = (
@@ -248,3 +260,76 @@ if st.button("**Prediksi**", type="primary"):
                     st.warning(himbauan_teks, icon="⚠️")
                 elif himbauan_tipe == "error":
                     st.error(himbauan_teks, icon="🚨")
+                ''
+                ''
+
+                g_col1, g_col2 = st.columns(2)
+
+                with g_col1:
+                    st.markdown("##### **Tren PM2.5 per Jam**")
+                    pm25_hourly = df_processed.groupby(df_processed.index.hour)['pm25'].mean()
+                    fig_hourly, ax_hourly = plt.subplots(figsize=(10, 6))
+
+                    pm25_hourly.plot(marker='o', ax=ax_hourly, color='C0')
+            
+                    ax_hourly.set_xlabel('Jam')
+                    ax_hourly.set_ylabel('PM2.5 (µg/m³)')
+                    ax_hourly.set_xticks(range(24))
+                    ax_hourly.set_xticks(np.arange(0, 25, 3)) 
+                    ax_hourly.grid(False)
+                    st.pyplot(fig_hourly)
+
+                with g_col2:
+                    st.markdown("##### **Tren PM2.5 per Hari**")
+                    pm25_daily = df_processed.groupby(df_processed.index.weekday)['pm25'].mean()
+                    pm25_daily = pm25_daily.reindex(range(7), fill_value=np.nan)
+            
+                    days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu']
+
+                    fig_daily, ax_daily = plt.subplots(figsize=(10, 6))
+                    pm25_daily.plot(marker='o', ax=ax_daily, color='C2')
+            
+                    ax_daily.set_xlabel('Hari')
+                    ax_daily.set_ylabel('PM2.5 (µg/m³)')
+                    ax_daily.set_xticks(range(7))
+                    ax_daily.set_xticklabels(days)
+                    ax_daily.grid(False)
+                    st.pyplot(fig_daily)
+                ''
+                
+                g_col3, g_col4 = st.columns(2)
+
+                with g_col3:
+                    st.markdown("##### **Tren PM2.5 per Bulan**")
+            
+                    pm25_monthly = df_processed.groupby(df_processed.index.month)['pm25'].mean()
+                    pm25_monthly = pm25_monthly.reindex(range(1, 13), fill_value=np.nan)
+            
+                    months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des']
+
+                    fig_monthly, ax_monthly = plt.subplots(figsize=(10, 6))
+                    pm25_monthly.plot(marker='o', ax=ax_monthly, color='C1')
+
+                    ax_monthly.set_xlabel('Bulan')
+                    ax_monthly.set_ylabel('PM2.5 (µg/m³)')
+                    ax_monthly.set_xticks(range(1, 13))
+                    ax_monthly.set_xticklabels(months, rotation=45)
+                    ax_monthly.grid(False)
+                    st.pyplot(fig_monthly)
+
+                    with g_col4:
+                        st.markdown("##### **Tren PM2.5 per Tahun**")
+            
+                        pm25_yearly = df_processed.groupby(df_processed.index.year)['pm25'].mean()
+            
+                        fig_yearly, ax_yearly = plt.subplots(figsize=(10, 6))
+                        pm25_yearly.plot(marker='o', ax=ax_yearly, color='C3')
+            
+                        ax_yearly.set_xlabel('Tahun')
+                        ax_yearly.set_ylabel('PM2.5 (µg/m³)')
+                        if not pm25_yearly.empty:
+                            years_int = pm25_yearly.index.astype(int)
+                            ax_yearly.set_xticks(years_int)
+                            ax_yearly.set_xticklabels(years_int)
+                            ax_yearly.grid(False)
+                            st.pyplot(fig_yearly)
