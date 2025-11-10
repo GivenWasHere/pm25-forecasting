@@ -88,15 +88,6 @@ st.download_button(
 # 1. Widget Pengunggah File
 uploaded_file = st.file_uploader("Unggah berkas di sini", type=["csv"])
 
-if uploaded_file is not None:
-    try:
-        if uploaded_file.name.lower().endswith(".csv"):
-            df = pd.read_csv(uploaded_file)
-            st.dataframe(df.head())
-    except Exception as e:
-        st.error(f"Gagal membaca file.")
-        st.stop()
-
 if uploaded_file:
     
     # 2. Tombol Aksi
